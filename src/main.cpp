@@ -44,8 +44,25 @@ int main(int argc, char **argv)
     // 对 QR 和 LiDAR 检测到的圆心进行排序
     PointCloud<PointXYZ>::Ptr qr_centers(new PointCloud<PointXYZ>);
     PointCloud<PointXYZ>::Ptr lidar_centers(new PointCloud<PointXYZ>);
+    PointCloud<PointXYZ>::Ptr lidar_centers_reverse(new PointCloud<PointXYZ>);
     sortPatternCenters(qr_center_cloud, qr_centers, "camera");
     sortPatternCenters(lidar_center_cloud, lidar_centers, "lidar");
+    std::cout << "lidar centers: \n";
+    for (int i = 0; i < lidar_centers->points.size(); ++i) {
+      const PointXYZ& p = lidar_centers->points[i];
+      std::cout << i << ": " << p.x << "," << p.y << "," << p.z << std::endl;
+    }
+    lidar_centers_reverse->points.push_back(lidar_centers->points[2]);
+    lidar_centers_reverse->points.push_back(lidar_centers->points[3]);
+    lidar_centers_reverse->points.push_back(lidar_centers->points[0]);
+    lidar_centers_reverse->points.push_back(lidar_centers->points[1]);
+    lidar_centers = lidar_centers_reverse;
+
+    std::cout << "qr centers: \n";
+    for (int i = 0; i < qr_centers->points.size(); ++i) {
+      const PointXYZ& p = qr_centers->points[i];
+      std::cout << i << ": " << p.x << "," << p.y << "," << p.z << std::endl;
+    }
 
     // 计算外参
     Eigen::Matrix4f transformation;

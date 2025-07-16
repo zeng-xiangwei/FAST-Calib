@@ -1,13 +1,13 @@
 # Camera intrinsics  
   # mid360
-  fx: 522.123514287681
-  fy: 522.275153384482
-  cx: 773.466430504725
-  cy: 534.053165700174
-  k1: 0.00324949759262203
-  k2: -0.0171040538369167
-  p1: 0.000669657443377146
-  p2: -0.000350205468789575
+  # fx: 522.123514287681
+  # fy: 522.275153384482
+  # cx: 773.466430504725
+  # cy: 534.053165700174
+  # k1: 0.00324949759262203
+  # k2: -0.0171040538369167
+  # p1: 0.000669657443377146
+  # p2: -0.000350205468789575
 
   # avia
   # fx: 1215.31801774424
@@ -29,8 +29,29 @@
   # p1: -0.000731746350601389
   # p2: -0.000201478932371979
 
+  # realsense 640x480
+  fx: 386.486999511719
+  fy: 386.097778320312
+  cx: 321.048919677734
+  cy: 244.334655761719
+  k1: 0.0
+  k2: 0.0
+  p1: 0.0
+  p2: 0.0
+
+  # realsense 1280X800
+  # fx: 386.486999511719
+  # fy: 386.097778320312
+  # cx: 321.048919677734
+  # cy: 244.334655761719
+  # k1: 0.0
+  # k2: 0.0
+  # p1: 0.0
+  # p2: 0.0
+
+
 # Calibration target parameters
-  marker_size: 0.20 # ArUco marker size (our test data uses 0.16m; adjust to match your marker size)
+  marker_size: 0.18 # ArUco marker size (our test data uses 0.16m; adjust to match your marker size)
   delta_width_qr_center: 0.55 # Half the distance between the centers of two markers in the horizontal direction 
   delta_height_qr_center: 0.35 # Half the distance between the centers of two markers in the vertical direction
   delta_width_circles: 0.5 # Distance between the centers of two circles in the horizontal direction
@@ -40,15 +61,15 @@
 # Distance filter
   x_min: 1.5
   x_max: 3.0
-  y_min: -1.5
-  y_max: 2.0
-  z_min: -0.5 # avia and mid360: -0.5 ouster: -0.8
-  z_max: 2.0
+  y_min: -1.0
+  y_max: 1.0
+  z_min: -1.0 # avia and mid360: -0.5 ouster: -0.8
+  z_max: 1.0
 
 # Input
   lidar_topic: "/livox/lidar" # /ouster/points /livox/lidar
-  bag_path: "$(find fast_calib)/calib_data/mid360/11.bag"
-  image_path: "$(find fast_calib)/calib_data/mid360/11.png"
+  bag_path: "$(find fast_calib)/calib_data/h10_w/livox_lidar.bag"
+  image_path: "$(find fast_calib)/calib_data/h10_w/current_640x480.png"
 
 # Output
   output_path: "$(find fast_calib)/output"

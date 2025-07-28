@@ -20,6 +20,10 @@ class LidarDetect
 private:
     double x_min_, x_max_, y_min_, y_max_, z_min_, z_max_;
     double circle_radius_;
+    float plane_ransac_dis_threshold_;
+    float normal_estimate_radius_;
+    float boundary_estimation_radius_;
+    float cluster_dis_tolerance_;
 
     // 存储中间结果的点云
     pcl::PointCloud<pcl::PointXYZ>::Ptr filtered_cloud_;
@@ -50,6 +54,10 @@ public:
         z_min_ = params.z_min;
         z_max_ = params.z_max;
         circle_radius_ = params.circle_radius;
+        plane_ransac_dis_threshold_ = params.plane_ransac_dis_threshold;
+        normal_estimate_radius_ = params.normal_estimate_radius;
+        boundary_estimation_radius_ = params.boundary_estimation_radius;
+        cluster_dis_tolerance_ = params.cluster_dis_tolerance;
 
         filtered_pub_ = nh.advertise<sensor_msgs::PointCloud2>("filtered_cloud", 1);
         plane_pub_ = nh.advertise<sensor_msgs::PointCloud2>("plane_cloud", 1);
@@ -98,7 +106,7 @@ public:
         pcl::SACSegmentation<pcl::PointXYZ> plane_segmentation;
         plane_segmentation.setModelType(pcl::SACMODEL_PLANE);
         plane_segmentation.setMethodType(pcl::SAC_RANSAC);
-        plane_segmentation.setDistanceThreshold(0.01);  // 平面分割阈值
+        plane_segmentation.setDistanceThreshold(plane_ransac_dis_threshold_);  // 平面分割阈值
         plane_segmentation.setInputCloud(filtered_cloud_);
         plane_segmentation.segment(*plane_inliers, *plane_coefficients);
     
@@ -141,14 +149,14 @@ public:
         pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normal_estimator;
         pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
         normal_estimator.setInputCloud(aligned_cloud_);
-        normal_estimator.setRadiusSearch(0.03); // 设置法线估计的搜索半径
+        normal_estimator.setRadiusSearch(normal_estimate_radius_); // 设置法线估计的搜索半径
         normal_estimator.compute(*normals);
     
         pcl::PointCloud<pcl::Boundary> boundaries;
         pcl::BoundaryEstimation<pcl::PointXYZ, pcl::Normal, pcl::Boundary> boundary_estimator;
         boundary_estimator.setInputCloud(aligned_cloud_);
         boundary_estimator.setInputNormals(normals);
-        boundary_estimator.setRadiusSearch(0.03); // 设置边界检测的搜索半径
+        boundary_estimator.setRadiusSearch(boundary_estimation_radius_); // 设置边界检测的搜索半径
         boundary_estimator.setAngleThreshold(M_PI / 4); // 设置角度阈值
         boundary_estimator.compute(boundaries);
     
@@ -165,7 +173,7 @@ public:
     
         std::vector<pcl::PointIndices> cluster_indices;
         pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
-        ec.setClusterTolerance(0.02); // 设置聚类距离阈值
+        ec.setClusterTolerance(cluster_dis_tolerance_); // 设置聚类距离阈值
         ec.setMinClusterSize(50);     // 最小点数
         ec.setMaxClusterSize(1000);   // 最大点数
         ec.setSearchMethod(tree);

@@ -85,6 +85,11 @@ struct Params {
   string bag_path;
   string lidar_topic;
   string output_path;
+
+  float plane_ransac_dis_threshold;
+  float normal_estimate_radius;
+  float boundary_estimation_radius;
+  float cluster_dis_tolerance;
 };
 
 // 读取参数
@@ -115,6 +120,10 @@ Params loadParameters(ros::NodeHandle &nh) {
   nh.param("y_max", params.y_max, 2.0);
   nh.param("z_min", params.z_min, -0.5);
   nh.param("z_max", params.z_max, 2.0);
+  nh.param("plane_ransac_dis_threshold", params.plane_ransac_dis_threshold, 0.01f);
+  nh.param("normal_estimate_radius", params.normal_estimate_radius, 0.03f);
+  nh.param("boundary_estimation_radius", params.boundary_estimation_radius, 0.03f);
+  nh.param("cluster_dis_tolerance", params.cluster_dis_tolerance, 0.02f);
   return params;
 }
 

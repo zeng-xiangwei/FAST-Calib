@@ -90,6 +90,8 @@ struct Params {
   float normal_estimate_radius;
   float boundary_estimation_radius;
   float cluster_dis_tolerance;
+  int min_cluster_points_size;
+  float circle_fit_error_threshold;
 };
 
 // 读取参数
@@ -124,6 +126,8 @@ Params loadParameters(ros::NodeHandle &nh) {
   nh.param("normal_estimate_radius", params.normal_estimate_radius, 0.03f);
   nh.param("boundary_estimation_radius", params.boundary_estimation_radius, 0.03f);
   nh.param("cluster_dis_tolerance", params.cluster_dis_tolerance, 0.02f);
+  nh.param("min_cluster_points_size", params.min_cluster_points_size, 50);
+  nh.param("circle_fit_error_threshold", params.circle_fit_error_threshold, 0.02f);
   return params;
 }
 
@@ -275,6 +279,19 @@ void saveCalibrationResults(const Params& params, const Eigen::Matrix4f& transfo
   }
  
   imwrite(outputDir + "qr_detect.png", img_input);
+}
+
+void saveMiddleResults(const Params& params, pcl::PointCloud<pcl::PointXYZ>::Ptr plane_cloud, 
+  pcl::PointCloud<pcl::PointXYZ>::Ptr edge_cloud) {
+  std::string outputDir = params.output_path;
+  if (outputDir.back() != '/') outputDir += '/';
+
+  std::string plane_cloud_path = outputDir + "plane_cloud.pcd";
+  pcl::io::savePCDFileBinary(plane_cloud_path, *plane_cloud);
+
+  std::string edge_cloud_path = outputDir + "edge_cloud.pcd";
+  pcl::io::savePCDFileBinary(edge_cloud_path, *edge_cloud);
+  std::cout << BOLDYELLOW << "[Middle Result] Saved plane and edge point cloud to: " << BOLDWHITE << outputDir << RESET << std::endl;
 }
 
 void sortPatternCenters(pcl::PointCloud<pcl::PointXYZ>::Ptr pc, pcl::PointCloud<pcl::PointXYZ>::Ptr v, const std::string& axis_mode = "camera") 

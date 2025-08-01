@@ -24,6 +24,8 @@ private:
     float normal_estimate_radius_;
     float boundary_estimation_radius_;
     float cluster_dis_tolerance_;
+    int min_cluster_points_size_;
+    float circle_fit_error_threshold_;
 
     // 存储中间结果的点云
     pcl::PointCloud<pcl::PointXYZ>::Ptr filtered_cloud_;
@@ -58,6 +60,8 @@ public:
         normal_estimate_radius_ = params.normal_estimate_radius;
         boundary_estimation_radius_ = params.boundary_estimation_radius;
         cluster_dis_tolerance_ = params.cluster_dis_tolerance;
+        min_cluster_points_size_ = params.min_cluster_points_size;
+        circle_fit_error_threshold_ = params.circle_fit_error_threshold;
 
         filtered_pub_ = nh.advertise<sensor_msgs::PointCloud2>("filtered_cloud", 1);
         plane_pub_ = nh.advertise<sensor_msgs::PointCloud2>("plane_cloud", 1);
@@ -220,7 +224,7 @@ public:
                 error /= inliers->indices.size();
     
                 // 如果拟合误差较小，则认为是一个圆洞
-                if (error < 0.02) 
+                if (error < circle_fit_error_threshold_) 
                 {
                     // 将恢复后的圆心坐标添加到点云中
                     pcl::PointXYZ center_point;

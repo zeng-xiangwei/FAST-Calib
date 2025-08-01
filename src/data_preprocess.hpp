@@ -43,13 +43,27 @@ public:
             return;
         }
 
+        if (isPCDFile(bag_path)) {
+            if (!readCloudFromPCD(bag_path)) {
+                return;
+            }
+        } else {
+            if (!readCloudFromBag(bag_path, lidar_topic)) {
+                return;
+            }
+        }
+
+        ROS_INFO("Loaded %ld points from the rosbag.", cloud_input_->size());
+    }
+
+    bool readCloudFromBag(const std::string& bag_path, const std::string& lidar_topic) {
         std::fstream file_;
         file_.open(bag_path, ios::in);
         if (!file_) 
         {
             std::string msg = "Loading the rosbag " + bag_path + " failed";
             ROS_ERROR_STREAM(msg.c_str());
-            return;
+            return false;
         }
         ROS_INFO("Loading the rosbag %s", bag_path.c_str());
         
@@ -58,7 +72,7 @@ public:
             bag.open(bag_path, rosbag::bagmode::Read);
         } catch (rosbag::BagException &e) {
             ROS_ERROR_STREAM("LOADING BAG FAILED: " << e.what());
-            return;
+            return false;
         }
 
         std::vector<string> lidar_topic_vec = {lidar_topic};
@@ -91,7 +105,27 @@ public:
                 *cloud_input_ += temp_cloud;
             } 
         }
-        ROS_INFO("Loaded %ld points from the rosbag.", cloud_input_->size()); 
+    }
+
+    bool readCloudFromPCD(const std::string& pcd_file) {
+        try {
+            pcl::io::loadPCDFile(pcd_file, *cloud_input_);
+        } catch (pcl::IOException& e) {
+            ROS_ERROR_STREAM("LOADING BAG FAILED: " << e.what());
+            return false;
+        }
+        return true;
+    }
+
+    bool isPCDFile(const std::string& path) {
+        if (path.length() < 5) {
+            return false;
+        }
+
+        // 检查是否以.pcd结尾(不区分大小写)
+        std::string extension = path.substr(path.length() - 4);
+        std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+        return extension == ".pcd";
     }
 };
 

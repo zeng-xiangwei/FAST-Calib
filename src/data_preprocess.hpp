@@ -105,6 +105,7 @@ public:
                 *cloud_input_ += temp_cloud;
             } 
         }
+        return true;
     }
 
     bool readCloudFromPCD(const std::string& pcd_file) {

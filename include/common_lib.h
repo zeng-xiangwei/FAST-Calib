@@ -309,23 +309,6 @@ void sortPatternCenters(pcl::PointCloud<pcl::PointXYZ>::Ptr pc, pcl::PointCloud<
     v->reserve(4);
   }
 
-  // Check axis mode
-  bool is_lidar_mode = (axis_mode == "lidar");
-
-  if (is_lidar_mode)
-  {
-    for (auto& point : pc->points) 
-    {
-      float x_new = -point.y;   // LiDAR Y → 相机 -X
-      float y_new = -point.z;   // LiDAR Z → 相机 -Y
-      float z_new = point.x;    // LiDAR X → 相机  Z
-
-      point.x = x_new;
-      point.y = y_new;
-      point.z = z_new;
-    }
-  }
-
   // Transform points to polar coordinates
   pcl::PointCloud<pcl::PointXYZ>::Ptr spherical_centers(
   new pcl::PointCloud<pcl::PointXYZ>());
@@ -377,20 +360,32 @@ void sortPatternCenters(pcl::PointCloud<pcl::PointXYZ>::Ptr pc, pcl::PointCloud<
   int lefttop_pt = top_pt;
   int righttop_pt = top_pt2;
 
-  if (spherical_centers->points[top_pt].x <
-    spherical_centers->points[top_pt2].x) {
-    int aux = lefttop_pt;
-    lefttop_pt = righttop_pt;
-    righttop_pt = aux;
-  }
-
-  // Swap indices if target is located in the pi,-pi discontinuity
-  double angle_diff = spherical_centers->points[lefttop_pt].x -
-  spherical_centers->points[righttop_pt].x;
-  if (angle_diff > M_PI - spherical_centers->points[lefttop_pt].x) {
-    int aux = lefttop_pt;
-    lefttop_pt = righttop_pt;
-    righttop_pt = aux;
+  // 假设 z 轴朝上
+  // 假设标定板的 topleft 与 topright 的连线不与 x 轴或 y 轴重合，则这个两个圆心之间的夹角一定小于 180 度
+  // 如果二者的夹角落在 -pi ~ pi 区间(x轴朝向为 0 度， x轴负方向为 ±180度)，则角度大的就是左上角，角度小的为右上角
+  // 如果二者的夹角跨过了 -pi/pi，则角度小的就是左上角，角度大的为右上角
+  // 按逆时针排序
+  double angle_top_pt = spherical_centers->points[top_pt].x;
+  double angle_top_pt2 = spherical_centers->points[top_pt2].x;
+  double angle_diff = angle_top_pt - angle_top_pt2;
+  if (std::abs(angle_diff) < M_PI) {
+    // 夹角小于180度，说明二者落在了递增的区间内
+    if (angle_top_pt > angle_top_pt2) {
+      lefttop_pt = top_pt;
+      righttop_pt = top_pt2;
+    } else {
+      lefttop_pt = top_pt2;
+      righttop_pt = top_pt;
+    }
+  } else {
+    // 夹角大于180度，说明二者跨过了 -pi/pi
+    if (angle_top_pt > angle_top_pt2) {
+      lefttop_pt = top_pt2;
+      righttop_pt = top_pt;
+    } else {
+      lefttop_pt = top_pt;
+      righttop_pt = top_pt2;
+    }
   }
 
   // Define bottom row centers using lefttop == top_pt as hypothesis
@@ -408,20 +403,6 @@ void sortPatternCenters(pcl::PointCloud<pcl::PointXYZ>::Ptr pc, pcl::PointCloud<
   v->push_back(pc->points[righttop_pt]);
   v->push_back(pc->points[rightbottom_pt]);
   v->push_back(pc->points[leftbottom_pt]);
-
-  if (is_lidar_mode) 
-  {
-    for (auto& point : v->points)
-    {
-      float x_new = point.z;  
-      float y_new = -point.x; 
-      float z_new = -point.y;  
-
-      point.x = x_new;
-      point.y = y_new;
-      point.z = z_new;
-    }
-  }
 }
 
 class Square 
@@ -484,7 +465,8 @@ class Square
      }
      // Check perimeter?
      pcl::PointCloud<pcl::PointXYZ>::Ptr sorted_centers(new pcl::PointCloud<pcl::PointXYZ>());
-     sortPatternCenters(candidates_cloud, sorted_centers, "camera");
+    //  sortPatternCenters(candidates_cloud, sorted_centers, "camera");
+     sorted_centers = candidates_cloud;
      float perimeter = 0;
      for (int i = 0; i < sorted_centers->size(); ++i) {
        float current_distance = distance(

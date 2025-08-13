@@ -30,10 +30,10 @@
   # p2: -0.000201478932371979
 
   # realsense 640x480
-  fx: 386.170715332031
-  fy: 385.671325683594
-  cx: 326.478424072266
-  cy: 243.792572021484
+  fx: 386.487
+  fy: 386.098
+  cx: 321.049
+  cy: 244.335
   k1: 0.0
   k2: 0.0
   p1: 0.0
@@ -60,35 +60,42 @@
 
 # Distance filter
 # livox
-  # x_min: 2.0
-  # x_max: 3.0
+  # x_min: -2.5
+  # x_max: -1.5
   # y_min: -1.0
   # y_max: 1.0
   # z_min: -1.0 # avia and mid360: -0.5 ouster: -0.8
   # z_max: 2.0
 
 # robosense 
-  x_min: -1.5
-  x_max: 1.5
-  y_min: -2.5
-  y_max: -1.5
+  x_min: 2.0
+  x_max: 2.5
+  y_min: -1.5
+  y_max: 1.0
   z_min: -0.5 # avia and mid360: -0.5 ouster: -0.8
   z_max: 2.0
 
 # Lidar fitting param. For livox, these param can be set small. For robosense, these param can be set large
-  plane_ransac_dis_threshold: 0.05
-  normal_estimate_radius: 0.1
-  boundary_estimation_radius: 0.1
-  cluster_dis_tolerance: 0.08
+  plane_ransac_dis_threshold: 0.01
+  normal_estimate_radius: 0.03
+  boundary_estimation_radius: 0.03
+  cluster_dis_tolerance: 0.02
   min_cluster_points_size: 50
   circle_fit_error_threshold: 0.02
 
+  # plane_ransac_dis_threshold: 0.1
+  # normal_estimate_radius: 0.1
+  # boundary_estimation_radius: 0.1
+  # cluster_dis_tolerance: 0.1
+  # min_cluster_points_size: 50
+  # circle_fit_error_threshold: 0.04
+
 # Input
-  lidar_topic: "/rslidar_points" # /ouster/points /livox/lidar /rslidar_points
-  bag_path: "/home/xiangweizeng/dataBag/robosense/calib_0801_car2/single_frame/rs_cloud.pcd"
-  image_path: "/home/xiangweizeng/dataBag/robosense/calib_0801_car2/single_frame/current_640x480.png"
-  # bag_path: "/home/xiangweizeng/dataBag/mid360/h10_calib/calib_0724/livox_lidar.bag"
-  # image_path: "/home/xiangweizeng/dataBag/mid360/h10_calib/calib_0724/current_640x480.png"
+  lidar_topic: "/livox/lidar" # /ouster/points /livox/lidar /rslidar_points
+  # bag_path: "/home/xiangweizeng/dataBag/robosense/calib_0801_car2/single_frame/rs_cloud.pcd"
+  # image_path: "/home/xiangweizeng/dataBag/robosense/calib_0801_car2/single_frame/current_640x480.png"
+  bag_path: "/home/xiangweizeng/dataBag/mid360/h10_calib/calib_0724/livox_lidar.bag"
+  image_path: "/home/xiangweizeng/dataBag/mid360/h10_calib/calib_0724/current_640x480.png"
 
 # Output
   output_path: "$(find fast_calib)/output"

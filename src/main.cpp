@@ -46,7 +46,11 @@ int main(int argc, char **argv)
     PointCloud<PointXYZ>::Ptr qr_centers(new PointCloud<PointXYZ>);
     PointCloud<PointXYZ>::Ptr lidar_centers(new PointCloud<PointXYZ>);
     PointCloud<PointXYZ>::Ptr lidar_centers_reverse(new PointCloud<PointXYZ>);
-    sortPatternCenters(qr_center_cloud, qr_centers, "camera");
+
+    // QR 检测的到的圆心已经按照从左上起排序的，仅将 LIDAR 的检测结果按照左上起排序
+    // 修改了排序方式，假设 LIDAR 的 z 轴是朝上的，且标定板是按照 readme 中的方式正着放置
+    // sortPatternCenters(qr_center_cloud, qr_centers, "camera");
+    qr_centers = qr_center_cloud;
     sortPatternCenters(lidar_center_cloud, lidar_centers, "lidar");
     std::cout << "lidar centers: \n";
     for (int i = 0; i < lidar_centers->points.size(); ++i) {
@@ -62,11 +66,11 @@ int main(int argc, char **argv)
       float dis = std::sqrt(std::pow(prev.x - next.x, 2) + std::pow(prev.y - next.y, 2) + std::pow(prev.z - next.z, 2));
       std::cout << i << "->" << next_idx << ": " << dis << std::endl;
     }
-    lidar_centers_reverse->points.push_back(lidar_centers->points[3]);
-    lidar_centers_reverse->points.push_back(lidar_centers->points[2]);
-    lidar_centers_reverse->points.push_back(lidar_centers->points[1]);
-    lidar_centers_reverse->points.push_back(lidar_centers->points[0]);
-    lidar_centers = lidar_centers_reverse;
+    // lidar_centers_reverse->points.push_back(lidar_centers->points[1]);
+    // lidar_centers_reverse->points.push_back(lidar_centers->points[0]);
+    // lidar_centers_reverse->points.push_back(lidar_centers->points[3]);
+    // lidar_centers_reverse->points.push_back(lidar_centers->points[2]);
+    // lidar_centers = lidar_centers_reverse;
 
     std::cout << "qr centers: \n";
     for (int i = 0; i < qr_centers->points.size(); ++i) {
@@ -82,12 +86,12 @@ int main(int argc, char **argv)
       float dis = std::sqrt(std::pow(prev.x - next.x, 2) + std::pow(prev.y - next.y, 2) + std::pow(prev.z - next.z, 2));
       std::cout << i << "->" << next_idx << ": " << dis << std::endl;
     }
-    PointCloud<PointXYZ>::Ptr qr_centers_reverse(new PointCloud<PointXYZ>);
-    qr_centers_reverse->points.push_back(qr_centers->points[1]);
-    qr_centers_reverse->points.push_back(qr_centers->points[0]);
-    qr_centers_reverse->points.push_back(qr_centers->points[3]);
-    qr_centers_reverse->points.push_back(qr_centers->points[2]);
-    qr_centers = qr_centers_reverse;
+    // PointCloud<PointXYZ>::Ptr qr_centers_reverse(new PointCloud<PointXYZ>);
+    // qr_centers_reverse->points.push_back(qr_centers->points[1]);
+    // qr_centers_reverse->points.push_back(qr_centers->points[0]);
+    // qr_centers_reverse->points.push_back(qr_centers->points[3]);
+    // qr_centers_reverse->points.push_back(qr_centers->points[2]);
+    // qr_centers = qr_centers_reverse;
 
     // 计算外参
     Eigen::Matrix4f transformation;

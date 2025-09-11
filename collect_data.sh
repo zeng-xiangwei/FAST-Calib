@@ -42,9 +42,9 @@ PROJECT_DIR="/home/xiangweizeng/3D_slam/fast_calib_ws"
 echo "start save one image"
 cd $PROJECT_DIR
 source ./install/setup.bash
-ros2 launch image_get image_get.launch.py image_file:=$CUR_SHELL_DIR/current.png &
+ros2 launch fast_calib image_get.launch.py image_file:=$CUR_SHELL_DIR/current.png &
 sleep 3
-kill_roslaunch_process "ros2 launch image_get image_get.launch.py"
+kill_roslaunch_process "ros2 launch fast_calib image_get.launch.py"
 echo -e "${GREEN}saved image to $CUR_SHELL_DIR/current.png.${NC}"
 sleep 3
 

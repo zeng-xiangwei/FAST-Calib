@@ -1,101 +1,103 @@
-# Camera intrinsics  
-  # mid360
-  # fx: 522.123514287681
-  # fy: 522.275153384482
-  # cx: 773.466430504725
-  # cy: 534.053165700174
-  # k1: 0.00324949759262203
-  # k2: -0.0171040538369167
-  # p1: 0.000669657443377146
-  # p2: -0.000350205468789575
+fast_calib:
+  ros__parameters:
+  # Camera intrinsics  
+    # mid360
+    # fx: 522.123514287681
+    # fy: 522.275153384482
+    # cx: 773.466430504725
+    # cy: 534.053165700174
+    # k1: 0.00324949759262203
+    # k2: -0.0171040538369167
+    # p1: 0.000669657443377146
+    # p2: -0.000350205468789575
 
-  # avia
-  # fx: 1215.31801774424
-  # fy: 1214.72961288138
-  # cx: 1047.86571859677
-  # cy: 745.068353101898
-  # k1: -0.33574781188503
-  # k2: 0.10996870793601
-  # p1: 0.000157303079833973
-  # p2: 0.000544930726278493
+    # avia
+    # fx: 1215.31801774424
+    # fy: 1214.72961288138
+    # cx: 1047.86571859677
+    # cy: 745.068353101898
+    # k1: -0.33574781188503
+    # k2: 0.10996870793601
+    # p1: 0.000157303079833973
+    # p2: 0.000544930726278493
 
-  # ouster
-  # fx: 1466.16500795563
-  # fy: 1465.32657394431
-  # cx: 1214.39964380518
-  # cy: 1010.97681425650
-  # k1: -0.0458344972140773
-  # k2: 0.0896961240772692
-  # p1: -0.000731746350601389
-  # p2: -0.000201478932371979
+    # ouster
+    # fx: 1466.16500795563
+    # fy: 1465.32657394431
+    # cx: 1214.39964380518
+    # cy: 1010.97681425650
+    # k1: -0.0458344972140773
+    # k2: 0.0896961240772692
+    # p1: -0.000731746350601389
+    # p2: -0.000201478932371979
 
-  # realsense 640x480
-  fx: 386.487
-  fy: 386.098
-  cx: 321.049
-  cy: 244.335
-  k1: 0.0
-  k2: 0.0
-  p1: 0.0
-  p2: 0.0
+    # realsense 640x480
+    fx: 386.487
+    fy: 386.098
+    cx: 321.049
+    cy: 244.335
+    k1: 0.0
+    k2: 0.0
+    p1: 0.0
+    p2: 0.0
 
-  # realsense 1280X800
-  # fx: 386.486999511719
-  # fy: 386.097778320312
-  # cx: 321.048919677734
-  # cy: 244.334655761719
-  # k1: 0.0
-  # k2: 0.0
-  # p1: 0.0
-  # p2: 0.0
+    # realsense 1280X800
+    # fx: 386.486999511719
+    # fy: 386.097778320312
+    # cx: 321.048919677734
+    # cy: 244.334655761719
+    # k1: 0.0
+    # k2: 0.0
+    # p1: 0.0
+    # p2: 0.0
 
 
-# Calibration target parameters
-  marker_size: 0.18 # ArUco marker size (our test data uses 0.16m; adjust to match your marker size)
-  delta_width_qr_center: 0.55 # Half the distance between the centers of two markers in the horizontal direction 
-  delta_height_qr_center: 0.35 # Half the distance between the centers of two markers in the vertical direction
-  delta_width_circles: 0.5 # Distance between the centers of two circles in the horizontal direction
-  delta_height_circles: 0.4 # Distance between the centers of two circles in the vertical direction
-  circle_radius: 0.12 # Radius of the circle 
+  # Calibration target parameters
+    marker_size: 0.18 # ArUco marker size (our test data uses 0.16m; adjust to match your marker size)
+    delta_width_qr_center: 0.55 # Half the distance between the centers of two markers in the horizontal direction 
+    delta_height_qr_center: 0.35 # Half the distance between the centers of two markers in the vertical direction
+    delta_width_circles: 0.5 # Distance between the centers of two circles in the horizontal direction
+    delta_height_circles: 0.4 # Distance between the centers of two circles in the vertical direction
+    circle_radius: 0.12 # Radius of the circle 
 
-# Distance filter
-# livox
-  # x_min: -2.5
-  # x_max: -1.5
-  # y_min: -1.0
-  # y_max: 1.0
-  # z_min: -1.0 # avia and mid360: -0.5 ouster: -0.8
-  # z_max: 2.0
+  # Distance filter
+  # livox
+    x_min: -2.5
+    x_max: -1.5
+    y_min: -1.0
+    y_max: 1.0
+    z_min: -1.0 # avia and mid360: -0.5 ouster: -0.8
+    z_max: 2.0
 
-# robosense 
-  x_min: 2.0
-  x_max: 2.5
-  y_min: -1.5
-  y_max: 1.0
-  z_min: -0.5 # avia and mid360: -0.5 ouster: -0.8
-  z_max: 2.0
+  # robosense 
+    # x_min: 2.0
+    # x_max: 2.5
+    # y_min: -1.5
+    # y_max: 1.0
+    # z_min: -0.5 # avia and mid360: -0.5 ouster: -0.8
+    # z_max: 2.0
 
-# Lidar fitting param. For livox, these param can be set small. For robosense, these param can be set large
-  plane_ransac_dis_threshold: 0.01
-  normal_estimate_radius: 0.03
-  boundary_estimation_radius: 0.03
-  cluster_dis_tolerance: 0.02
-  min_cluster_points_size: 50
-  circle_fit_error_threshold: 0.02
+  # Lidar fitting param. For livox, these param can be set small. For robosense, these param can be set large
+    plane_ransac_dis_threshold: 0.01
+    normal_estimate_radius: 0.03
+    boundary_estimation_radius: 0.03
+    cluster_dis_tolerance: 0.02
+    min_cluster_points_size: 50
+    circle_fit_error_threshold: 0.02
 
-  # plane_ransac_dis_threshold: 0.1
-  # normal_estimate_radius: 0.1
-  # boundary_estimation_radius: 0.1
-  # cluster_dis_tolerance: 0.1
-  # min_cluster_points_size: 50
-  # circle_fit_error_threshold: 0.04
+    # plane_ransac_dis_threshold: 0.1
+    # normal_estimate_radius: 0.1
+    # boundary_estimation_radius: 0.1
+    # cluster_dis_tolerance: 0.1
+    # min_cluster_points_size: 50
+    # circle_fit_error_threshold: 0.04
 
-# Input
-  lidar_topic: "/livox/lidar" # /ouster/points /livox/lidar /rslidar_points
-  # bag_path: "/home/xiangweizeng/dataBag/robosense/calib_0801_car2/single_frame/rs_cloud.pcd"
-  # image_path: "/home/xiangweizeng/dataBag/robosense/calib_0801_car2/single_frame/current_640x480.png"
-  bag_path: "/home/xiangweizeng/dataBag/mid360/h10_calib/calib_0724/livox_lidar.bag"
-  image_path: "/home/xiangweizeng/dataBag/mid360/h10_calib/calib_0724/current_640x480.png"
+  # Input
+    lidar_topic: "/livox/lidar" # /ouster/points /livox/lidar /rslidar_points
+    # bag_path: "/home/xiangweizeng/dataBag/robosense/calib_0801_car2/single_frame/rs_cloud.pcd"
+    # image_path: "/home/xiangweizeng/dataBag/robosense/calib_0801_car2/single_frame/current_640x480.png"
+    bag_path: "/home/xiangweizeng/3D_slam/fast_calib_ws/collect_data/livox_lidar"
+    image_path: "/home/xiangweizeng/3D_slam/fast_calib_ws/collect_data/current.png"
 
-# Output
-  output_path: "$(find fast_calib)/output"
+  # Output
+    output_path: "/home/xiangweizeng/3D_slam/fast_calib_ws/src/FAST-Calib/output"

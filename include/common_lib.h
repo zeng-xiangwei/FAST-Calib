@@ -14,9 +14,6 @@ which is included as part of this source code package.
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/common/transforms.h>
-#include <pcl_ros/point_cloud.h>
-#include <pcl_ros/filters/passthrough.h>
-#include <pcl_conversions/pcl_conversions.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/features/boundary.h>
 #include <pcl/features/normal_3d.h>
@@ -26,7 +23,6 @@ which is included as part of this source code package.
 #include <pcl/registration/transformation_estimation_svd.h>
 #include <cmath>
 
-#include <tf/tf.h>
 #include "color.h"
 
 using namespace std;
@@ -36,43 +32,6 @@ using namespace pcl;
 #define TARGET_NUM_CIRCLES 4
 #define DEBUG 1
 #define GEOMETRY_TOLERANCE 0.06
-
-// namespace CommonLiDAR 
-// {
-//   struct EIGEN_ALIGN16 Point 
-//   {
-//     PCL_ADD_POINT4D;     // quad-word XYZ
-//     float intensity;     ///< laser intensity reading
-//     std::uint16_t ring;  ///< laser ring number
-//     float range;
-//     EIGEN_MAKE_ALIGNED_OPERATOR_NEW  // ensure proper alignment
-//   };
-  
-//   void addRange(pcl::PointCloud<CommonLiDAR::Point> &pc) 
-//   {
-//     for (pcl::PointCloud<Point>::iterator pt = pc.points.begin();
-//          pt < pc.points.end(); pt++) {
-//       pt->range = sqrt(pt->x * pt->x + pt->y * pt->y + pt->z * pt->z);
-//     }
-//   }
-  
-//   vector<vector<Point *>> getRings(pcl::PointCloud<CommonLiDAR::Point> &pc,
-//                                    int rings_count) 
-//   {
-//     vector<vector<Point *>> rings(rings_count);
-//     for (pcl::PointCloud<Point>::iterator pt = pc.points.begin();
-//          pt < pc.points.end(); pt++) {
-//       rings[pt->ring].push_back(&(*pt));
-//     }
-//     return rings;
-//   }
-// }  // namespace Ouster
-  
-// POINT_CLOUD_REGISTER_POINT_STRUCT(CommonLiDAR::Point,
-//                                   (float, x, x)(float, y, y)(float, z, z)(
-//                                       float, intensity,
-//                                       intensity)(std::uint16_t, ring,
-//                                                   ring)(float, range, range));
 
 // 参数结构体
 struct Params {
@@ -95,39 +54,39 @@ struct Params {
 };
 
 // 读取参数
-Params loadParameters(ros::NodeHandle &nh) {
+Params loadParameters(rclcpp::Node::SharedPtr node) {
   Params params;
-  nh.param("fx", params.fx, 1215.31801774424);
-  nh.param("fy", params.fy, 1214.72961288138);
-  nh.param("cx", params.cx, 1047.86571859677);
-  nh.param("cy", params.cy, 745.068353101898);
-  nh.param("k1", params.k1, -0.33574781188503);
-  nh.param("k2", params.k2, 0.10996870793601);
-  nh.param("p1", params.p1, 0.000157303079833973);
-  nh.param("p2", params.p2, 0.000544930726278493);
-  nh.param("marker_size", params.marker_size, 0.2);
-  nh.param("delta_width_qr_center", params.delta_width_qr_center, 0.55);
-  nh.param("delta_height_qr_center", params.delta_height_qr_center, 0.35);
-  nh.param("delta_width_circles", params.delta_width_circles, 0.5);
-  nh.param("delta_height_circles", params.delta_height_circles, 0.4);
-  nh.param("min_detected_markers", params.min_detected_markers, 3);
-  nh.param("circle_radius", params.circle_radius, 0.12);
-  nh.param("image_path", params.image_path, string("/home/chunran/calib_ws/src/fast_calib/data/image.png"));
-  nh.param("bag_path", params.bag_path, string("/home/chunran/calib_ws/src/fast_calib/data/input.bag"));
-  nh.param("lidar_topic", params.lidar_topic, string("/livox/lidar"));
-  nh.param("output_path", params.output_path, string("/home/chunran/calib_ws/src/fast_calib/output"));
-  nh.param("x_min", params.x_min, 1.5);
-  nh.param("x_max", params.x_max, 3.0);
-  nh.param("y_min", params.y_min, -1.5);
-  nh.param("y_max", params.y_max, 2.0);
-  nh.param("z_min", params.z_min, -0.5);
-  nh.param("z_max", params.z_max, 2.0);
-  nh.param("plane_ransac_dis_threshold", params.plane_ransac_dis_threshold, 0.01f);
-  nh.param("normal_estimate_radius", params.normal_estimate_radius, 0.03f);
-  nh.param("boundary_estimation_radius", params.boundary_estimation_radius, 0.03f);
-  nh.param("cluster_dis_tolerance", params.cluster_dis_tolerance, 0.02f);
-  nh.param("min_cluster_points_size", params.min_cluster_points_size, 50);
-  nh.param("circle_fit_error_threshold", params.circle_fit_error_threshold, 0.02f);
+  params.fx = node->declare_parameter("fx", 1215.31801774424);
+  params.fy = node->declare_parameter("fy", 1214.72961288138);
+  params.cx = node->declare_parameter("cx", 1047.86571859677);
+  params.cy = node->declare_parameter("cy", 745.068353101898);
+  params.k1 = node->declare_parameter("k1", -0.33574781188503);
+  params.k2 = node->declare_parameter("k2", 0.10996870793601);
+  params.p1 = node->declare_parameter("p1", 0.000157303079833973);
+  params.p2 = node->declare_parameter("p2", 0.000544930726278493);
+  params.marker_size = node->declare_parameter("marker_size", 0.2);
+  params.delta_width_qr_center = node->declare_parameter("delta_width_qr_center", 0.55);
+  params.delta_height_qr_center = node->declare_parameter("delta_height_qr_center", 0.35);
+  params.delta_width_circles = node->declare_parameter("delta_width_circles", 0.5);
+  params.delta_height_circles = node->declare_parameter("delta_height_circles", 0.4);
+  params.min_detected_markers = node->declare_parameter("min_detected_markers", 3);
+  params.circle_radius = node->declare_parameter("circle_radius", 0.12);
+  params.image_path = node->declare_parameter("image_path", string("/home/chunran/calib_ws/src/fast_calib/data/image.png"));
+  params.bag_path = node->declare_parameter("bag_path", string("/home/chunran/calib_ws/src/fast_calib/data/input.bag"));
+  params.lidar_topic = node->declare_parameter("lidar_topic", string("/livox/lidar"));
+  params.output_path = node->declare_parameter("output_path", string("/home/chunran/calib_ws/src/fast_calib/output"));
+  params.x_min = node->declare_parameter("x_min", 1.5);
+  params.x_max = node->declare_parameter("x_max", 3.0);
+  params.y_min = node->declare_parameter("y_min", -1.5);
+  params.y_max = node->declare_parameter("y_max", 2.0);
+  params.z_min = node->declare_parameter("z_min", -0.5);
+  params.z_max = node->declare_parameter("z_max", 2.0);
+  params.plane_ransac_dis_threshold = node->declare_parameter("plane_ransac_dis_threshold", 0.01f);
+  params.normal_estimate_radius = node->declare_parameter("normal_estimate_radius", 0.03f);
+  params.boundary_estimation_radius = node->declare_parameter("boundary_estimation_radius", 0.03f);
+  params.cluster_dis_tolerance = node->declare_parameter("cluster_dis_tolerance", 0.02f);
+  params.min_cluster_points_size = node->declare_parameter("min_cluster_points_size", 50);
+  params.circle_fit_error_threshold = node->declare_parameter("circle_fit_error_threshold", 0.02f);
   return params;
 }
 

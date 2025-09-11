@@ -1,3 +1,5 @@
+ros2 版本，需要额外增加一个 livox_ros_driver2 包，用于读取 livox 数据 [livox_ros_driver2_msg](https://github.com/zeng-xiangwei/livox_ros_driver2_msg)
+
 # FAST-Calib
 FAST-Calib is an automatic target-based extrinsic calibration tool for LiDAR-camera systems (eg., [FAST-LIVO2](https://github.com/hku-mars/FAST-LIVO2)). 
 

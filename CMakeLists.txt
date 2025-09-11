@@ -11,6 +11,7 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
+find_package(cv_bridge REQUIRED)
 
 find_package(PCL REQUIRED)
 find_package(OpenCV REQUIRED)
@@ -46,9 +47,19 @@ target_link_libraries(fast_calib
   ${OpenCV_LIBRARIES}
 )
 
+add_executable(save_image src/save_image.cpp)
+ament_target_dependencies(save_image 
+  rclcpp
+  std_msgs
+  sensor_msgs
+  cv_bridge)
+target_link_libraries(save_image ${OpenCV_LIBRARIES})
+target_include_directories(save_image PRIVATE ${OpenCV_INCLUDE_DIRS})
+
 # Install
 install(TARGETS
   fast_calib
+  save_image
   DESTINATION lib/${PROJECT_NAME}
 )
 

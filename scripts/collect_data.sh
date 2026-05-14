@@ -34,43 +34,44 @@ NC='\033[0m' # No Color
 # 3. 在车端执行相机驱动
 # 4. 获取一帧图像
 
-ros2 daemon stop
-ros2 daemon start
-
 CUR_SHELL_DIR=$(cd `dirname $0`; pwd)
-PROJECT_DIR="/home/xiangweizeng/3D_slam/fast_calib_ws"
+PROJECT_DIR="/home/diana/vln/fast_calib_ws"
+DATA_DIR=$PROJECT_DIR/collect_data
+mkdir -p $DATA_DIR
+
 echo "start save one image"
 cd $PROJECT_DIR
 source ./install/setup.bash
-ros2 launch fast_calib image_get.launch.py image_file:=$CUR_SHELL_DIR/current.png &
+ros2 launch fast_calib image_get.launch.py image_file:=$DATA_DIR/current.png &
 sleep 3
 kill_roslaunch_process "ros2 launch fast_calib image_get.launch.py"
-echo -e "${GREEN}saved image to $CUR_SHELL_DIR/current.png.${NC}"
+echo -e "${GREEN}saved image to $DATA_DIR/current.png.${NC}"
 sleep 3
 
 # 5. 录制数据 ros2 bag
 echo "start record livox lidar"
-cd $CUR_SHELL_DIR
+cd $DATA_DIR
 ros2bag_file_name="livox_lidar"
+rm -rf $ros2bag_file_name
 ros2 bag record /livox/lidar -o $ros2bag_file_name &
 sleep 20
 kill_roslaunch_process "ros2 bag record"
 sleep 5
-echo -e "${GREEN}saved ros2 bag to ${CUR_SHELL_DIR}/${ros2bag_file_name}.${NC}"
-ros2 bag info ${CUR_SHELL_DIR}/$ros2bag_file_name
+echo -e "${GREEN}saved ros2 bag to ${DATA_DIR}/${ros2bag_file_name}.${NC}"
+ros2 bag info ${DATA_DIR}/$ros2bag_file_name
 
-# 6. 记录 low_state
+# 6. 记录 low_state，解析出需要的头部关节角以及torso高度，放到 DATA_DIR/low_state.yaml 中
 echo "start save low_state"
 cd $PROJECT_DIR
 source ./install/setup.bash
-low_state_file=${CUR_SHELL_DIR}/low_state.txt
-ros2 topic echo /low_state > $low_state_file &
-sleep 5.0
-kill_roslaunch_process "ros2 topic echo /low_state"
+low_state_file=${DATA_DIR}/low_state.yaml
+ros2 run fast_calib read_low_state.py --yaml $low_state_file
 echo -e "${GREEN}saved low_state to $low_state_file.${NC}"
 
-# 7. 启动标定程序. 需要根据标定位置以及数据路径调整 qr_params.yaml 中的参数
-# cd $PROJECT_DIR
-# source ./install/setup.bash
-# ros2 launch fast_calib calib.launch.py 
+# 7. 获取相机内参
+cd $PROJECT_DIR
+source ./install/setup.bash
+ros2 run fast_calib update_camera_intrinsics.py
+# 8. 启动标定程序. 需要根据标定位置以及数据路径调整 qr_params.yaml 中的参数
+ros2 launch fast_calib calib.launch.py 
 

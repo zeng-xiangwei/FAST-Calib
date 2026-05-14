@@ -18,6 +18,9 @@ which is included as part of this source code package.
 #include <opencv2/opencv.hpp>
 #include "common_lib.h"
 
+// livox_ros_driver2 message
+#include <livox_ros_driver2/msg/custom_msg.hpp>
+
 
 using namespace std;
 using namespace cv;
@@ -56,45 +59,138 @@ public:
         std::cout << "Loaded " << cloud_input_->size() << "points from the rosbag." << std::endl;
     }
 
+    /**
+     * @brief 读取bag文件，自动判断消息类型（sensor_msgs::PointCloud2 或 livox_ros_driver2::CustomMsg）
+     */
     bool readCloudFromBag(const std::string& bag_path, const std::string& lidar_topic) {
+        
+        // 首先尝试 livox_ros_driver2::CustomMsg
+        cloud_input_->clear();
+        if (tryReadLivoxCustomMsgBag(bag_path, lidar_topic)) {
+            if (!cloud_input_->empty()) {
+                std::cout << "Detected livox_ros_driver2::CustomMsg format" << std::endl;
+                return true;
+            }
+        }
 
+        // 失败后尝试 sensor_msgs::PointCloud2 读取
+        cloud_input_->clear();
+        if (tryReadSensorMsgsBag(bag_path, lidar_topic)) {
+            if (!cloud_input_->empty()) {
+                std::cout << "Detected sensor_msgs::PointCloud2 format" << std::endl;
+                return true;
+            }
+        }
+    
+        
+        std::cerr << "Failed to read cloud data from bag file" << std::endl;
+        return false;
+    }
+
+    /**
+     * @brief 尝试以 sensor_msgs::PointCloud2 格式读取bag
+     */
+    bool tryReadSensorMsgsBag(const std::string& bag_path, const std::string& lidar_topic) {
         try
         {
-            // 创建bag读取器
             rosbag2_cpp::Reader reader;
             reader.open(bag_path);
 
-            // 设置序列化格式
             rclcpp::Serialization<sensor_msgs::msg::PointCloud2> serialization;
 
             while (reader.has_next())
             {
                 auto bag_message = reader.read_next();
 
-                // 检查是否是目标topic
                 if (bag_message->topic_name != lidar_topic)
                 {
                     continue;
                 }
 
-                // 反序列化消息
                 auto ros_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
                 rclcpp::SerializedMessage extracted_serialized_msg(*bag_message->serialized_data);
                 serialization.deserialize_message(&extracted_serialized_msg, ros_msg.get());
 
-                // 转换为PCL点云
+                // 检查是否是有效的 PointCloud2
+                if (ros_msg->width == 0 || ros_msg->height == 0) {
+                    continue;
+                }
+
                 pcl::PointCloud<pcl::PointXYZ>::Ptr frame(new pcl::PointCloud<pcl::PointXYZ>);
                 pcl::fromROSMsg(*ros_msg, *frame);
+                
+                // 检查是否有有效点
+                if (frame->empty()) {
+                    continue;
+                }
+                
                 *cloud_input_ += *frame;
             }
+            
+            return !cloud_input_->empty();
         }
         catch (const std::exception &e)
         {
-            std::cerr << "Error reading bag file: " << e.what() << std::endl;
+            std::cerr << "tryReadSensorMsgsBag failed: " << e.what() << std::endl;
             return false;
         }
+    }
 
-        return true;
+    /**
+     * @brief 尝试以 livox_ros_driver2::CustomMsg 格式读取bag
+     */
+    bool tryReadLivoxCustomMsgBag(const std::string& bag_path, const std::string& lidar_topic) {
+        try
+        {
+            rosbag2_cpp::Reader reader;
+            reader.open(bag_path);
+
+            rclcpp::Serialization<livox_ros_driver2::msg::CustomMsg> serialization;
+
+            while (reader.has_next())
+            {
+                auto bag_message = reader.read_next();
+
+                if (bag_message->topic_name != lidar_topic)
+                {
+                    continue;
+                }
+
+                auto ros_msg = std::make_shared<livox_ros_driver2::msg::CustomMsg>();
+                rclcpp::SerializedMessage extracted_serialized_msg(*bag_message->serialized_data);
+                serialization.deserialize_message(&extracted_serialized_msg, ros_msg.get());
+
+                // 从 livox CustomMsg 提取点云
+                for (const auto& point : ros_msg->points)
+                {
+                    pcl::PointXYZ p;
+                    p.x = point.x;
+                    p.y = point.y;
+                    p.z = point.z;
+                    
+                    // 过滤无效点 (livox 常见处理)
+                    if (std::isnan(p.x) || std::isnan(p.y) || std::isnan(p.z)) {
+                        continue;
+                    }
+                    
+                    cloud_input_->push_back(p);
+                }
+            }
+            
+            return !cloud_input_->empty();
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "tryReadLivoxCustomMsgBag failed: " << e.what() << std::endl;
+            return false;
+        }
+    }
+
+    /**
+     * @brief 直接读取 livox 自定义消息格式的 bag（保留作为独立函数）
+     */
+    bool readCloudFromLivoxBag(const std::string& bag_path, const std::string& lidar_topic) {
+        return tryReadLivoxCustomMsgBag(bag_path, lidar_topic);
     }
 
     bool readCloudFromPCD(const std::string& pcd_file) {

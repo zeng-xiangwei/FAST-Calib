@@ -32,14 +32,53 @@ fast_calib:
     # p2: -0.000201478932371979
 
     # realsense 640x480
-    fx: 386.487
-    fy: 386.098
-    cx: 321.049
-    cy: 244.335
+    fx: 605.620056152344
+    fy: 605.7431640625
+    cx: 328.480072021484
+    cy: 241.811920166016
     k1: 0.0
     k2: 0.0
     p1: 0.0
     p2: 0.0
+
+    # fx: 387.3292541503906
+    # fy: 386.9391784667969
+    # cx: 321.0489196777344
+    # cy: 244.33465576171875
+    # k1: 0.0
+    # k2: 0.0
+    # p1: 0.0
+    # p2: 0.0
+
+    # 奥比中光
+    # fx: 366.945
+    # fy: 367.030
+    # cx: 322.071
+    # cy: 243.208
+    # k1: -0.0328851193189621
+    # k2: 0.03537854552268982
+    # p1: -6.278970249695703e-05
+    # p2: -0.0005867612781003118
+
+    # cs30
+    # fx: 462.450
+    # fy: 462.325
+    # cx: 483.628
+    # cy: 278.138
+    # k1: 0.0
+    # k2: 0.0
+    # p1: 0.0
+    # p2: 0.0
+
+
+    # fx: 387.013
+    # fy: 386.623
+    # cx: 321.048
+    # cy: 244.334
+    # k1: 0.0
+    # k2: 0.0
+    # p1: 0.0
+    # p2: 0.0
 
     # realsense 1280X800
     # fx: 386.486999511719
@@ -62,12 +101,12 @@ fast_calib:
 
   # Distance filter
   # livox
-    x_min: -2.5
-    x_max: -1.5
+    x_min: 1.5
+    x_max: 2.5
     y_min: -1.0
     y_max: 1.0
-    z_min: -1.0 # avia and mid360: -0.5 ouster: -0.8
-    z_max: 2.0
+    z_min: -0.5 # avia and mid360: -0.5 ouster: -0.8
+    z_max: 2.5
 
   # robosense 
     # x_min: 2.0
@@ -96,8 +135,8 @@ fast_calib:
     lidar_topic: "/livox/lidar" # /ouster/points /livox/lidar /rslidar_points
     # bag_path: "/home/xiangweizeng/dataBag/robosense/calib_0801_car2/single_frame/rs_cloud.pcd"
     # image_path: "/home/xiangweizeng/dataBag/robosense/calib_0801_car2/single_frame/current_640x480.png"
-    bag_path: "/home/xiangweizeng/3D_slam/fast_calib_ws/collect_data/livox_lidar"
-    image_path: "/home/xiangweizeng/3D_slam/fast_calib_ws/collect_data/current.png"
+    bag_path: "./collect_data/livox_lidar"
+    image_path: "./collect_data/current.png"
 
   # Output
-    output_path: "/home/xiangweizeng/3D_slam/fast_calib_ws/src/FAST-Calib/output"
+    output_path: "./output"

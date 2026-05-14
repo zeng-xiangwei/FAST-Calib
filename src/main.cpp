@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     PointCloud<PointXYZ>::Ptr lidar_center_cloud(new PointCloud<PointXYZ>);
     lidar_center_cloud->reserve(4);
     lidarDetectPtr->detect_lidar(cloud_input, lidar_center_cloud);
-    saveMiddleResults(params, lidarDetectPtr->getPlaneCloud(), lidarDetectPtr->getEdgeCloud());
+    saveMiddleResults(params, lidarDetectPtr->getPlaneCloud(), lidarDetectPtr->getEdgeCloud(), cloud_input);
     
     // 对 QR 和 LiDAR 检测到的圆心进行排序
     PointCloud<PointXYZ>::Ptr qr_centers(new PointCloud<PointXYZ>);

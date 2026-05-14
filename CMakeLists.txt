@@ -5,6 +5,10 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# C++17 required for std::filesystem
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -12,6 +16,8 @@ find_package(sensor_msgs REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
 find_package(cv_bridge REQUIRED)
+find_package(livox_ros_driver2 REQUIRED)
+find_package(h10_w REQUIRED)
 
 find_package(PCL REQUIRED)
 find_package(OpenCV REQUIRED)
@@ -40,6 +46,7 @@ ament_target_dependencies(fast_calib
   sensor_msgs
   pcl_conversions
   rosbag2_cpp
+  livox_ros_driver2
 )
 
 target_link_libraries(fast_calib
@@ -69,6 +76,13 @@ install(DIRECTORY
   config
   rviz_cfg
   DESTINATION share/${PROJECT_NAME}
+)
+
+# Install Python scripts
+install(PROGRAMS
+  scripts/update_camera_intrinsics.py
+  scripts/read_low_state.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

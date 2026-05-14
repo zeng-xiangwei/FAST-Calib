@@ -22,6 +22,7 @@ which is included as part of this source code package.
 #include <pcl/segmentation/extract_clusters.h>
 #include <pcl/registration/transformation_estimation_svd.h>
 #include <cmath>
+#include <filesystem>
 
 #include "color.h"
 
@@ -195,6 +196,12 @@ void saveCalibrationResults(const Params& params, const Eigen::Matrix4f& transfo
   std::string outputDir = params.output_path;
   if (outputDir.back() != '/') outputDir += '/';
 
+  // 创建输出目录（如果不存在）
+  if (!std::filesystem::exists(outputDir)) {
+    std::filesystem::create_directories(outputDir);
+    std::cout << BOLDYELLOW << "[saveCalibrationResults] Created output directory: " << BOLDWHITE << outputDir << RESET << std::endl;
+  }
+
   std::ofstream outFile(outputDir + "calib_result.txt");
   if (outFile.is_open()) 
   {
@@ -241,15 +248,24 @@ void saveCalibrationResults(const Params& params, const Eigen::Matrix4f& transfo
 }
 
 void saveMiddleResults(const Params& params, pcl::PointCloud<pcl::PointXYZ>::Ptr plane_cloud, 
-  pcl::PointCloud<pcl::PointXYZ>::Ptr edge_cloud) {
+  pcl::PointCloud<pcl::PointXYZ>::Ptr edge_cloud, pcl::PointCloud<pcl::PointXYZ>::Ptr origin_cloud) {
   std::string outputDir = params.output_path;
   if (outputDir.back() != '/') outputDir += '/';
+  
+  // 创建输出目录（如果不存在）
+  if (!std::filesystem::exists(outputDir)) {
+    std::filesystem::create_directories(outputDir);
+    std::cout << BOLDYELLOW << "[saveMiddleResults] Created output directory: " << BOLDWHITE << outputDir << RESET << std::endl;
+  }
 
   std::string plane_cloud_path = outputDir + "plane_cloud.pcd";
   pcl::io::savePCDFileBinary(plane_cloud_path, *plane_cloud);
 
   std::string edge_cloud_path = outputDir + "edge_cloud.pcd";
   pcl::io::savePCDFileBinary(edge_cloud_path, *edge_cloud);
+
+  std::string origin_cloud_path = outputDir + "origin_cloud.pcd";
+  pcl::io::savePCDFileBinary(origin_cloud_path, *origin_cloud);
   std::cout << BOLDYELLOW << "[Middle Result] Saved plane and edge point cloud to: " << BOLDWHITE << outputDir << RESET << std::endl;
 }
 

@@ -15,6 +15,7 @@ def generate_launch_description():
         executable='save_image',
         name='save_image',
         output='screen',
+        # remappings=[('/camera/camera/color/image_raw', '/camera1_HV0130315L0163/rgb_raw')],
         parameters=[{'image_file': LaunchConfiguration('image_file'),}]
     )
     
